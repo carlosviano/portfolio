@@ -1,0 +1,48 @@
+---
+import { formatMonth, type EmployerSection } from "../lib/catalog";
+import CardGrid from "./CardGrid.astro";
+
+interface Props {
+  section: EmployerSection;
+}
+
+const { section } = Astro.props;
+const headingId = `employer-${section.id}`;
+---
+
+<section aria-labelledby={headingId} class="flex flex-col gap-8">
+  <header class="flex flex-col gap-3">
+    <h2 id={headingId} class="text-title font-medium">
+      {section.name}{" "}
+      {section.formerly && (
+        <span class="block text-base font-normal tracking-normal text-muted">
+          formerly {section.formerly}
+        </span>
+      )}
+    </h2>
+    <ul class="flex flex-col gap-1">
+      {section.roles.map((role) => (
+        <li>
+          {role.title} ·{" "}
+          <span class="text-muted">
+            <time datetime={role.start}>{formatMonth(role.start)}</time> –{" "}
+            {role.end ? (
+              <time datetime={role.end}>{formatMonth(role.end)}</time>
+            ) : (
+              "Present"
+            )}
+          </span>
+        </li>
+      ))}
+    </ul>
+    <p class="max-w-prose text-muted">{section.context}</p>
+  </header>
+  <CardGrid items={section.items} />
+  {section.highlights.length > 0 && (
+    <ul aria-label="Highlights" class="flex list-disc flex-col gap-2 pl-5">
+      {section.highlights.map((highlight) => (
+        <li>{highlight}</li>
+      ))}
+    </ul>
+  )}
+</section>

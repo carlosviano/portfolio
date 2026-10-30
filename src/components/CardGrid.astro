@@ -1,0 +1,20 @@
+---
+import type { CatalogItem } from "../lib/catalog";
+import { ProjectCard } from "./ProjectCard";
+
+interface Props {
+  items: CatalogItem[];
+}
+
+const { items } = Astro.props;
+---
+
+{items.length > 0 && (
+  <ul class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    {items.map((item) => (
+      <li>
+        <ProjectCard item={item} />
+      </li>
+    ))}
+  </ul>
+)}
