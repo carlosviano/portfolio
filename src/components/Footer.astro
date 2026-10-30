@@ -1,0 +1,34 @@
+---
+import { site } from "../config/site";
+import EmailLink from "./EmailLink.astro";
+
+const linkClass = "text-muted transition-colors hover:text-fg";
+---
+
+<footer class="border-t border-line">
+  <div class="mx-auto flex max-w-page flex-wrap items-center justify-between gap-x-8 gap-y-4 px-gutter py-8 text-sm">
+    <p class="text-muted">
+      {site.name} · {site.role}
+    </p>
+    <ul class="flex flex-wrap gap-x-6 gap-y-2">
+      <li>
+        <EmailLink class={linkClass} />
+      </li>
+      <li>
+        <a href={site.links.linkedin} class={linkClass}>
+          LinkedIn
+        </a>
+      </li>
+      <li>
+        <a href={site.links.github} class={linkClass}>
+          GitHub
+        </a>
+      </li>
+      <li>
+        <a href={site.cvPath} class={linkClass}>
+          CV (PDF)
+        </a>
+      </li>
+    </ul>
+  </div>
+</footer>

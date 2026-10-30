@@ -1,0 +1,66 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+
+/*
+ * Design tokens. Components use the Tailwind utilities mapped below
+ * (bg-bg, text-fg, text-muted, border-line, text-accent…), never raw colours.
+ * One light theme only; every text token keeps WCAG AA on --bg.
+ */
+:root {
+  color-scheme: light;
+  --bg: #f7f6f3;
+  --bg-raised: #ffffff;
+  --fg: #141414;
+  --muted: #5a5a57;
+  --line: #dcdad4;
+  /* Placeholder until the personal accent is chosen (constitution, open questions). */
+  --accent: #1f4fd1;
+  --focus: #1f4fd1;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-raised: var(--bg-raised);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-focus: var(--focus);
+
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+
+  /* Fluid type scale: large, quiet headings in the Inditex style. */
+  --text-display: clamp(2.5rem, 1.6rem + 4.5vw, 5rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.03em;
+  --text-title: clamp(1.75rem, 1.4rem + 1.75vw, 2.75rem);
+  --text-title--line-height: 1.1;
+  --text-title--letter-spacing: -0.02em;
+
+  --spacing-gutter: clamp(1rem, 0.5rem + 2.5vw, 3rem);
+  --spacing-section: clamp(4rem, 2.5rem + 7.5vw, 9rem);
+  --container-page: 80rem;
+
+  --radius-card: 0.25rem;
+}
+
+@layer base {
+  html {
+    @apply bg-bg font-sans text-fg antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
