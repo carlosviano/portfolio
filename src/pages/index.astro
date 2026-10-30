@@ -1,0 +1,18 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../config/site";
+---
+
+<!-- Placeholder: the real Home lands in feature 004. -->
+<BaseLayout>
+  <section class="mx-auto max-w-page px-gutter py-section">
+    <h1 class="text-display font-medium">{site.role}</h1>
+    <p class="mt-6 max-w-2xl text-lg text-muted">{site.description}</p>
+    <a href="/work/" class="mt-10 inline-block underline underline-offset-4">
+      See my work
+    </a>
+  </section>
+  <section id="about" class="mx-auto max-w-page px-gutter pb-section">
+    <h2 class="text-title font-medium">About</h2>
+  </section>
+</BaseLayout>

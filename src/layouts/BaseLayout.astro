@@ -1,0 +1,46 @@
+---
+import "../styles/global.css";
+
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import SkipLink from "../components/SkipLink.astro";
+import { site } from "../config/site";
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Path for the canonical URL; defaults to the current path. */
+  canonicalPath?: string;
+}
+
+const {
+  title,
+  description = site.description,
+  canonicalPath = Astro.url.pathname,
+} = Astro.props;
+
+const fullTitle = title
+  ? `${title} — ${site.name}`
+  : `${site.name} — ${site.role}`;
+const canonical = new URL(canonicalPath, Astro.site);
+---
+
+<!doctype html>
+<html lang={Astro.currentLocale ?? "en"}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body class="flex min-h-dvh flex-col">
+    <SkipLink />
+    <Header />
+    <main id="main" tabindex="-1" class="flex-1 focus:outline-none">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

@@ -1,0 +1,28 @@
+---
+import { site } from "../config/site";
+
+const current = Astro.url.pathname;
+---
+
+<header class="border-b border-line">
+  <div class="mx-auto flex max-w-page flex-wrap items-center justify-between gap-x-8 gap-y-3 px-gutter py-5">
+    <a href="/" class="font-semibold tracking-tight">
+      {site.name}
+    </a>
+    <nav aria-label="Main">
+      <ul class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+        {site.nav.map(({ label, href }) => (
+          <li>
+            <a
+              href={href}
+              aria-current={href === current ? "page" : undefined}
+              class="text-muted transition-colors hover:text-fg aria-[current=page]:text-fg"
+            >
+              {label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>
