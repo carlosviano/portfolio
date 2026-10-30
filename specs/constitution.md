@@ -54,7 +54,8 @@ roles. It shows what a CV can't: in-depth case studies, visuals, and the site's 
   (1–2 sentences) → What I did (4 numbered steps) → Outcome (3 bullets) → What I'd do differently
   (1 line) → media → Next project.
 - Up to 3 numbers per card. Work cases: scope numbers only (screens, brand variants, app states);
-  no business KPIs. Personal projects: real, verifiable numbers (evals, tests).
+  no internal business KPIs or figures; qualitative public outcomes I can defend (e.g. store-review
+  impact) are allowed. Personal projects: real, verifiable numbers (evals, tests).
 - No taglines or buzzwords; one role label used everywhere; the same figure is identical wherever it appears.
 - Positioning stays "React & React Native engineer"; Pizca's card leads on AI with human approval.
   A dedicated AI project is planned as feature 007, after launch.
