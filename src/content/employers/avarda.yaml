@@ -1,0 +1,13 @@
+name: Avarda Bank
+formerly: TF Bank
+context: "Placeholder: consumer banking apps for web and mobile."
+roles:
+  - title: React Native Engineer
+    start: "2025-09"
+  - title: React Developer
+    start: "2024-04"
+    end: "2025-09"
+highlights:
+  - "Placeholder: notification architecture refactor."
+  - "Placeholder: device pairing and biometric sign-in."
+  - "Placeholder: CMS roll-out for in-app content."

@@ -1,10 +1,37 @@
 ---
+import { getCollection } from "astro:content";
+
+import CardGrid from "../../components/CardGrid.astro";
+import EmployerSection from "../../components/EmployerSection.astro";
+import { kindLabels } from "../../content/project-schema";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { toWorkPage } from "../../lib/catalog";
+
+// Static HTML only: ProjectCard renders without a client directive (R3.7).
+const page = toWorkPage(
+  await getCollection("projects"),
+  await getCollection("employers"),
+);
+
+const otherSections = [
+  { id: "personal", heading: kindLabels.personal, items: page.personal },
+  { id: "freelance", heading: kindLabels.freelance, items: page.freelance },
+];
 ---
 
-<!-- Placeholder: the project catalog lands in feature 002. -->
 <BaseLayout title="Work" description="Case studies and projects.">
-  <section class="mx-auto max-w-page px-gutter py-section">
+  <div class="mx-auto flex max-w-page flex-col gap-section px-gutter py-section">
     <h1 class="text-display font-medium">Work</h1>
-  </section>
+    {page.employers.map((section) => (
+      <EmployerSection section={section} />
+    ))}
+    {otherSections.map(({ id, heading, items }) => (
+      <section aria-labelledby={id} class="flex flex-col gap-8">
+        <h2 id={id} class="text-title font-medium">
+          {heading}
+        </h2>
+        <CardGrid items={items} />
+      </section>
+    ))}
+  </div>
 </BaseLayout>

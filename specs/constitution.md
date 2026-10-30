@@ -17,8 +17,8 @@ roles. It shows what a CV can't: in-depth case studies, visuals, and the site's 
 - Language / runtime: TypeScript (strict), Node 24 (`.nvmrc`), pnpm.
 - Framework(s): Astro (static output) + React islands only where interaction is needed;
   Tailwind 4 with design tokens as CSS variables (one light theme, no theme switching).
-- Data / state: Astro content collections (MDX) validated by Zod schemas; URL params for UI
-  state (e.g. `?kind=`). No backend, no database.
+- Data / state: Astro content collections (MDX, YAML) validated by Zod schemas; URL params for
+  UI state if any is needed. No backend, no database.
 - Testing: Vitest + Testing Library (schemas, islands); Playwright + axe (end-to-end, a11y).
 - Hosting: Cloudflare Pages, custom domain; Cloudflare Web Analytics (cookieless).
 
@@ -65,10 +65,10 @@ One branch and PR per feature (`feat/NNN-name`); specs commit first, then implem
 | # | Feature | Scope |
 |---|---|---|
 | 001 | foundation | Scaffold, quality bar, tokens, base layout, i18n config (done) |
-| 002 | project-catalog | Content collection + Zod schema, 9 placeholder entries, `/work` grid with kind filter (`?kind=`) |
+| 002 | project-catalog | Project and employer collections + Zod schemas, 8 placeholder entries, `/work` grouped by employer |
 | 003 | case-pages | `/work/[slug]` template (content rules above), video loop (reduced motion, poster), diagram slot, next project |
 | 004 | home | Plain-role hero, numbered featured 3, About, contact links, CV link |
-| 005 | case-content | The 9 case studies drafted from interview stories + CV, reviewed, confidentiality pass |
+| 005 | case-content | The 8 case studies drafted from interview stories + CV, reviewed, confidentiality pass |
 | 006 | launch | README, analytics, preview, domain and deploy (each step approved) |
 | 007 | ai-project | One AI product project (after launch), then its card |
 

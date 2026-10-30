@@ -1,7 +1,7 @@
 ---
 type: spec-design
 feature: 002-project-catalog
-status: in-progress
+status: done
 updated: 2026-10-30
 ---
 # Project catalog — design
@@ -53,7 +53,9 @@ the React `ProjectCard`, rendered without a client directive, so no JS. (R3)
 - Numbering runs through the page in display order (employers, then Personal, then Freelance).
   `order` sorts cards within a section and stays unique across all entries.
 - `formatRole`: `Intl.DateTimeFormat("en-GB", { month: "short", year: "numeric" })` gives
-  "Sept 2025", matching the CV; a missing `end` reads "Present". Wrapped in `<time datetime>`.
+  "Sept 2025", matching the CV; a missing `end` reads "Present". In the markup each month is
+  its own `<time datetime="YYYY-MM">` (via the exported `formatMonth`), because a range has no
+  single valid `datetime`; `dates` stays in the model for plain-text use.
 
 ## Markup
 - `h1` Work → `h2` per employer ("Avarda Bank", then a muted "formerly TF Bank"), "Personal",
