@@ -1,7 +1,7 @@
 ---
 type: spec-requirements
 feature: 002-project-catalog
-status: in-progress
+status: done
 updated: 2026-10-30
 ---
 # Project catalog — requirements
