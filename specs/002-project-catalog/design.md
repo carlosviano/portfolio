@@ -6,103 +6,107 @@ updated: 2026-10-30
 ---
 # Project catalog — design
 
+> 2026-10-30: reworked after the requirements change (grouped by employer, no kind filter).
+> The first version's React island (`ProjectCatalog`) and its tests are removed.
+
 ## Approach
-Projects are an Astro content collection (`glob` loader over `src/content/projects/*.mdx`). The
-Zod schema lives in a plain module so Vitest can test it without Astro's virtual modules. (R1)
-Rules that span entries (unique `order`, 3 featured) are checked by a small catalog helper the
-`/work` page calls at build time, so a broken catalog fails `pnpm build`. (R1.5, R2.2)
-The page renders one React island, `ProjectCatalog`, with `client:load`. Astro renders its HTML
-at build time, so every card is in the static HTML (R3.5). After hydration the island reads
-`?kind=`, filters the list and shows the filter controls (R4). Cards are a React component, so
-004 can render the featured ones on Home with no client directive and no JS.
+Two content collections: `projects` (MDX, `src/content/projects/*.mdx`) and `employers` (YAML,
+`src/content/employers/*.yaml`), both with the `glob` loader. The file name is the id. The Zod
+schemas live in plain modules so Vitest can test them without Astro's virtual modules. (R1, R5)
+A work project names its employer by id (`employer: avarda`), validated as a plain string rather
+than Astro's `reference()`. `reference()` needs `astro:content`, which would make the schema
+module untestable in Vitest. `toWorkPage` checks the id exists, so the build still fails on a
+typo. (R1.6)
+`toWorkPage(projects, employers)` builds the whole page model: sections in order, cards sorted,
+continuous numbering, and the cross-entry checks. `/work` renders it with Astro components plus
+the React `ProjectCard`, rendered without a client directive, so no JS. (R3)
 
 ## Affected areas
 | File / module | Change | Reqs |
 |---|---|---|
-| `src/content/project-schema.ts` | new: `projectKinds`, `kindLabels`, `projectSchema` (Zod from `astro/zod`), `Project` type | R1.1–R1.3 |
-| `src/content.config.ts` | new: `projects` collection, glob loader, `projectSchema` | R1.1, R1.4, R1.5 |
-| `src/content/projects/*.mdx` | new: 9 placeholder entries (file name = slug) | R2.1–R2.3 |
-| `src/lib/catalog.ts` | new: `toCatalog(entries)` sorts by `order`, checks unique `order` and 3 featured (throws naming the clashing entries), maps entries to card props | R1.5, R2.2, R3.1–R3.3 |
-| `src/components/ProjectCard.tsx` | new: number, title (the card's single link), kind, summary, stack, metrics | R3.2, R3.3 |
-| `src/components/ProjectCatalog.tsx` | new island: filter group, live status, `<ol>` of cards | R3.1, R3.4, R4.1–R4.7 |
-| `src/pages/work/index.astro` | replace placeholder: `getCollection` → `toCatalog` → `<ProjectCatalog client:load>` | R3, R4.7 |
-| `src/content/project-schema.test.ts`, `src/lib/catalog.test.ts`, `src/components/ProjectCatalog.test.tsx` | new: Vitest (+ Testing Library) | R1–R4 |
-| `e2e/catalog.spec.ts` | new: Playwright + axe | R3, R4 |
+| `src/content/project-schema.ts` | add optional `employer` (id) with a refine: required for `work`, absent otherwise | R1.1, R1.6 |
+| `src/content/employer-schema.ts` | new: `employerSchema` (name, `formerly?`, context, roles, highlights), month format `YYYY-MM`, role-date refine | R5.1, R5.4 |
+| `src/content.config.ts` | add the `employers` collection | R5.1 |
+| `src/content/employers/{avarda,decody}.yaml` | new: real names, roles and dates; placeholder context and highlights | R5.2, R5.3 |
+| `src/content/projects/*.mdx` | 8 entries: add `employer: avarda` to work ones, rename `identity-login-fix` → `session-login-fix`, delete `notification-refactor`, renumber `order` | R2 |
+| `src/lib/catalog.ts` | `toCatalog` → `toWorkPage`; adds `formatRole` ("Sept 2025 – Present") | R1.5, R1.6, R2.2, R3.1–R3.5 |
+| `src/components/ProjectCard.tsx` | card title becomes `<h3>`; kind label dropped (the section already says it) | R3.3, R3.4, R3.8 |
+| `src/components/EmployerSection.astro`, `src/components/CardGrid.astro` | new | R3.2, R3.5, R3.8 |
+| `src/pages/work/index.astro` | render the page model; no `client:*` directive | R3, R3.7 |
+| `src/components/ProjectCatalog.tsx`, `.test.tsx` | delete | R4 |
+| `src/content/employer-schema.test.ts`, `src/lib/catalog.test.ts`, `src/components/ProjectCard.test.tsx` | new / rewritten | R1, R3, R5 |
+| `e2e/catalog.spec.ts` | rewrite for sections | R3 |
 
 ## Data and contracts
-- `projectSchema` frontmatter:
-  `title: string` · `kind: "work" | "personal" | "freelance"` · `summary: string` (1 sentence,
-  ≤ 160 chars) · `role: string` · `stack: string[]` (≥ 1) · `metrics: { label, value }[]`
-  (≤ 3, default `[]`) · `featured: boolean` (default `false`) · `order: positive int`.
-  The MDX body is case-page copy for 003; it's a one-line placeholder for now.
-- `CatalogItem` (island props, plain serialisable data only): `slug`, `number` ("01"…),
-  `href` (`/work/<slug>/`), `title`, `kind`, `summary`, `stack`, `metrics`.
-- `ProjectCatalog` props: `items: CatalogItem[]`. No copy in components besides UI labels
-  (filter names come from `kindLabels`; status reads "Showing N of 9 projects").
+- `employerSchema`: `name: string` · `formerly?: string` · `context: string` (≤ 160 chars) ·
+  `roles: { title, start: "YYYY-MM", end?: "YYYY-MM" }[]` (≥ 1, listed most recent first) ·
+  `highlights: string[]` (default `[]`).
+- Role refine (R5.4): every `end ≥ start`; roles sorted by `start` must not overlap. A role may
+  start in the month the previous one ended (Sept 2025 handover).
+  Month strings compare correctly as strings, so no date parsing is needed.
+- `projectSchema` gains `employer?: string`; the R1.2 kinds and R1.3 metrics rules are unchanged.
+- `WorkPage` = `{ employers: EmployerSection[], personal: CatalogItem[], freelance: CatalogItem[] }`;
+  `EmployerSection` = `{ id, name, formerly?, context, roles: { title, dates, start, end? }[],
+  highlights, items: CatalogItem[] }`; `CatalogItem` is unchanged.
+- Employer order: most recent role `start` first. No `order` field, because dates already define
+  it.
+- Numbering runs through the page in display order (employers, then Personal, then Freelance).
+  `order` sorts cards within a section and stays unique across all entries.
+- `formatRole`: `Intl.DateTimeFormat("en-GB", { month: "short", year: "numeric" })` gives
+  "Sept 2025", matching the CV; a missing `end` reads "Present". Wrapped in `<time datetime>`.
 
-## Behaviour
-- Filter: a `role="group"` with the label "Filter by kind" and 4 buttons
-  (All · Work · Personal · Freelance) using `aria-pressed`. The selected button is bold with an
-  underline (shape, not just colour). (R4.1, R4.5)
-- Choosing an option filters the list and calls `history.replaceState` with `?kind=<kind>`, or
-  no query for All. `replaceState` means filter clicks don't pile up in the Back history. (R4.2)
-- After mount, the island reads `?kind=`: a valid kind applies, anything else falls back to All.
-  (R4.3, R4.4)
-- The filter group renders only after mount, so the no-JS HTML has every card and no dead
-  controls. (R4.6)
-- A `role="status"` region announces "Showing N of 9 projects" when the filter changes. (R4.5)
-- The card number comes from the card's place in the full list, so it stays the same when
-  filtered. Only matching items are rendered (not hidden with CSS), so the `<ol>` count read by
-  screen readers is correct.
-- Grid: 1 column by default, 2 from `md`, 3 from `lg`; no fixed widths. (R3.4)
+## Markup
+- `h1` Work → `h2` per employer ("Avarda Bank", then a muted "formerly TF Bank"), "Personal",
+  "Freelance" → `h3` per card title. (R3.8)
+- Employer header: roles as a list of "Title · dates", then context. Cards grid (1 / 2 / 3
+  columns at default / `md` / `lg`), then highlights as a `ul`. No cards → no grid. (R3.2, R3.5)
+- The card is unchanged otherwise: number, title link with the stretched `::after`, summary,
+  metrics `dl`, stack list.
 
 ## Edge cases and errors
-- Duplicate `order` or a featured count other than 3 → `toCatalog` throws with the entry slugs,
-  and the build fails. (R1.5, R2.2)
-- Invalid frontmatter → Astro's content error names the file, and the build fails. (R1.4)
-- `?kind=Work` (wrong case) or `?kind=` (empty) → All. (R4.4)
-- Kind with no entries can't happen with the current set; the status would still read
-  "Showing 0 of 9 projects" rather than an empty, silent list.
-- The first paint with `?kind=` shows all cards until hydration (static HTML can't read the
-  query). With `client:load` this is one frame or so; accepted rather than adding an inline
-  pre-hydration script.
+- Work project with no employer, or personal/freelance with one → schema error naming the file.
+  (R1.4, R1.6)
+- Unknown employer id → `toWorkPage` throws naming the project and the id. (R1.6)
+- Duplicate `order`, featured ≠ 3 → throws as before. Overlapping or backwards roles → schema
+  error naming the employer file. (R1.5, R2.2, R5.4)
+- Empty `projects` collection → `toWorkPage` throws "No project entries found; restart the dev
+  server if you just added content config". This covers the stale dev-server case hit on
+  2026-10-30.
+- Employer with no work projects (DecoDy) → header and highlights only. (R3.5)
 
 ## Placeholder content
-- Order: 01 design system, 02 migration flow, 03 Pizca (the featured 3), then cash-to-account,
-  identity-login fix, component library, notification refactor, cake-shop landing, this site.
-- Metrics: left empty except figures already decided in the vault (design system: 2 brand
-  variants). No invented numbers (principle 5); real figures come in 005.
-- Generic product names only; summaries marked as placeholders in the copy itself.
+- Avarda Bank (`avarda.yaml`), formerly TF Bank: React Native Engineer 2025-09–present; React
+  Developer 2024-04–2025-09. Placeholder highlights: notification architecture, device pairing
+  and biometrics, CMS roll-out.
+- DecoDy Software (`decody.yaml`): Junior Software Developer 2023-03–2024-03. Placeholder
+  highlights: a browser game in React and TypeScript, internal tooling.
+- Project order: 1 design system, 2 migration flow, 3 cash-to-account, 4 session-login fix,
+  5 component library (Avarda); 6 Pizca, 7 this site (Personal); 8 cake-shop landing.
+- Context and highlight text is marked "Placeholder:". Real copy comes in 005.
 
 ## Testing
-- Vitest, schema: a valid entry parses; a wrong kind, 4 metrics, or a missing title is rejected.
-- Vitest, catalog: sorts by order; numbers are zero-padded; a duplicate order throws naming both
-  slugs; 2 or 4 featured throws.
-- Vitest + Testing Library, `ProjectCatalog`: renders all items; clicking Work leaves only work
-  items, sets `aria-pressed`, updates the status text and calls `replaceState` with `?kind=work`;
-  All clears the query; an initial `?kind=personal` applies; `?kind=nope` shows all.
-- Playwright (built site):
-  - without JS: 9 cards, no filter group (R3.5, R4.6)
-  - `/work/?kind=personal` shows 2 cards with Personal pressed (R4.3); `?kind=nope` shows 9 (R4.4)
-  - keyboard only: Tab to Work, press Enter → 6 cards and the URL has `?kind=work` (R4.2, R4.5)
-  - each card has exactly one link to `/work/<slug>/` (R3.3); numbers 01–09 in order (R3.1)
-  - 375 px, no horizontal scroll; axe has zero violations with a filter applied (R3.4, R4.5)
-  - exactly one `astro-island` on `/work` (R4.7)
+- Vitest, employer schema: valid entry parses; bad month format, `end < start` and overlapping
+  roles are rejected; a role starting the month the previous one ended is accepted.
+- Vitest, project schema: `work` without employer and `personal` with employer are rejected.
+- Vitest, `toWorkPage`: section order (most recent employer first, then Personal, Freelance);
+  continuous numbering; unknown employer, duplicate order, featured ≠ 3 and an empty collection
+  throw; an employer with no projects keeps its section.
+- Vitest, `formatRole`: "Sept 2025 – Present" and "Apr 2024 – Sept 2025".
+- Vitest + Testing Library, `ProjectCard`: one link to `/work/<slug>/`, title is an `h3`.
+- Playwright (built site): `h2` order Avarda Bank, DecoDy Software, Personal, Freelance; cards
+  01–08 in order with one link each; DecoDy shows highlights and no cards; no `astro-island` and
+  no module script from the page (only the layout's email script); 375 px with no horizontal
+  scroll; axe has zero violations.
 
 ## New dependencies
-None. Testing Library's `fireEvent` covers the island tests; Zod comes from `astro/zod`.
-
-## Open questions
-- With only 9 projects (6 / 2 / 1) the kind filter may not earn its place. Keep it for now and
-  decide after 005, when the real cards are in. Dropping it would mean removing R4 and the island,
-  leaving `/work` with zero JS.
+None.
 
 ## Alternatives rejected
-- Filter as a vanilla `<script>` that toggles `hidden` on Astro-rendered cards: less JS, but
-  it splits the grid's state between markup and a script. The React island is also the one
-  piece of the public repo that shows React work.
-- Hiding non-matching cards with CSS instead of removing them: list semantics would report 9
-  items while showing 6.
-- Filter links (`<a href="?kind=work">`) without JS: a static site can't filter on the server,
-  so the link would reload the same full list.
-- `pushState` per filter change: Back would step through filter clicks instead of leaving the page.
+- Flat grid with a kind filter (first implementation): six cases from one job read as one job
+  split up, and the filter wasn't worth its JS with 9 cards.
+- Employer as a field repeated on each project: role and date changes would need editing in
+  several files, and employers without cards would have nowhere to live.
+- Astro `reference("employers")`: needs `astro:content` in the schema module, so it can't be
+  unit-tested; the id check in `toWorkPage` gives the same build-time failure.
+- Two employer sections for TF Bank and Avarda Bank: it's the same company after a rebrand. One
+  section with both roles shows the progression.
