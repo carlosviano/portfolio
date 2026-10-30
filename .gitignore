@@ -1,0 +1,26 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+pnpm-debug.log*
+
+# env files
+.env
+.env.*
+!.env.example
+
+# test output
+coverage/
+playwright-report/
+test-results/
+blob-report/
+
+# OS / editor
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
