@@ -1,0 +1,93 @@
+---
+import { statSync } from "node:fs";
+import { join } from "node:path";
+
+import type { GetStaticPaths } from "astro";
+import { getCollection } from "astro:content";
+
+import CaseDiagram from "../../components/CaseDiagram.astro";
+import CaseHeader from "../../components/CaseHeader.astro";
+import CaseVideo from "../../components/CaseVideo.astro";
+import NextProject from "../../components/NextProject.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { checkMedia, toCasePages, type CasePage } from "../../lib/case-pages";
+
+export const getStaticPaths = (async () => {
+  // Builds run from the project root; the bundled page can't rely on its own URL.
+  const stat = (path: string) => {
+    try {
+      return statSync(join(process.cwd(), "public", path)).size;
+    } catch {
+      return undefined;
+    }
+  };
+
+  const pages = toCasePages(
+    await getCollection("projects"),
+    await getCollection("employers"),
+  );
+  // A missing or oversized media file fails the build (R3.5).
+  for (const page of pages) checkMedia(page, stat);
+  return pages.map((page) => ({
+    params: { slug: page.slug },
+    props: { page },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  page: CasePage;
+}
+
+const { page } = Astro.props;
+const { video, diagram } = page.media ?? {};
+---
+
+<BaseLayout title={page.title} description={page.summary}>
+  <article class="mx-auto flex max-w-page flex-col gap-section px-gutter py-section">
+    <CaseHeader page={page} />
+    <div class="flex max-w-prose flex-col gap-12">
+      <section aria-labelledby="problem" class="flex flex-col gap-3">
+        <h2 id="problem" class="text-title font-medium">
+          Problem
+        </h2>
+        <p>{page.problem}</p>
+      </section>
+      <section aria-labelledby="what-i-did" class="flex flex-col gap-3">
+        <h2 id="what-i-did" class="text-title font-medium">
+          What I did
+        </h2>
+        <ol class="flex list-decimal flex-col gap-2 pl-6">
+          {page.steps.map((step) => (
+            <li>{step}</li>
+          ))}
+        </ol>
+      </section>
+      <section aria-labelledby="outcome" class="flex flex-col gap-3">
+        <h2 id="outcome" class="text-title font-medium">
+          Outcome
+        </h2>
+        <ul class="flex list-disc flex-col gap-2 pl-6">
+          {page.outcomes.map((outcome) => (
+            <li>{outcome}</li>
+          ))}
+        </ul>
+      </section>
+      <section aria-labelledby="differently" class="flex flex-col gap-3">
+        <h2 id="differently" class="text-title font-medium">
+          What I'd do differently
+        </h2>
+        <p>{page.differently}</p>
+      </section>
+    </div>
+    {(video || diagram) && (
+      <section aria-labelledby="media" class="flex flex-col gap-8">
+        <h2 id="media" class="text-title font-medium">
+          Media
+        </h2>
+        {video && <CaseVideo video={video} id={page.slug} />}
+        {diagram && <CaseDiagram diagram={diagram} />}
+      </section>
+    )}
+    <NextProject next={page.next} />
+  </article>
+</BaseLayout>

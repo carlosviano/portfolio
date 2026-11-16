@@ -1,0 +1,44 @@
+---
+import type { CasePage } from "../lib/case-pages";
+
+interface Props {
+  page: Pick<CasePage, "title" | "role" | "context" | "stack" | "links">;
+}
+
+const { page } = Astro.props;
+---
+
+<header class="flex flex-col gap-8">
+  <h1 class="text-display font-medium">{page.title}</h1>
+  <dl class="grid gap-x-8 gap-y-4 sm:grid-cols-[max-content_1fr]">
+    <dt class="text-sm text-muted">Role</dt>
+    <dd>{page.role}</dd>
+    <dt class="text-sm text-muted">Context</dt>
+    <dd>{page.context}</dd>
+    <dt class="text-sm text-muted">Stack</dt>
+    <dd>
+      <ul class="flex flex-wrap gap-2 text-sm">
+        {page.stack.map((tech) => (
+          <li class="rounded-card border border-line px-2 py-0.5">{tech}</li>
+        ))}
+      </ul>
+    </dd>
+    {/* No links (most work cases) → no Links row (R2.3). */}
+    {page.links.length > 0 && (
+      <>
+        <dt class="text-sm text-muted">Links</dt>
+        <dd>
+          <ul class="flex flex-wrap gap-x-6 gap-y-2">
+            {page.links.map(({ label, href }) => (
+              <li>
+                <a href={href} class="underline underline-offset-4">
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </dd>
+      </>
+    )}
+  </dl>
+</header>

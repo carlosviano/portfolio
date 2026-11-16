@@ -1,0 +1,23 @@
+---
+import type { Project } from "../content/project-schema";
+
+interface Props {
+  diagram: NonNullable<NonNullable<Project["media"]>["diagram"]>;
+}
+
+const { diagram } = Astro.props;
+---
+
+<figure class="flex flex-col gap-3">
+  <img
+    src={diagram.src}
+    alt={diagram.alt}
+    width={diagram.width}
+    height={diagram.height}
+    loading="lazy"
+    class="h-auto w-full rounded-card border border-line"
+  />
+  {diagram.caption && (
+    <figcaption class="text-sm text-muted">{diagram.caption}</figcaption>
+  )}
+</figure>

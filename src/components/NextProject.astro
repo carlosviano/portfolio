@@ -1,0 +1,21 @@
+---
+import type { NextLink } from "../lib/case-pages";
+
+interface Props {
+  next: NextLink;
+}
+
+const { next } = Astro.props;
+---
+
+<nav aria-labelledby="next-project" class="border-t border-line pt-8">
+  <h2 id="next-project" class="text-sm text-muted">
+    Next project
+  </h2>
+  <a
+    href={next.href}
+    class="mt-2 inline-block text-title font-medium underline-offset-8 hover:underline"
+  >
+    <span class="tabular-nums text-muted">{next.number}</span> · {next.title}
+  </a>
+</nav>
