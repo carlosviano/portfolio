@@ -1,7 +1,7 @@
 ---
 type: spec-requirements
 feature: 003-case-pages
-status: in-progress
+status: done
 updated: 2026-10-30
 ---
 # Case pages — requirements

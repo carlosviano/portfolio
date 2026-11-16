@@ -1,7 +1,7 @@
 ---
 type: spec-design
 feature: 003-case-pages
-status: in-progress
+status: done
 updated: 2026-10-30
 ---
 # Case pages — design
@@ -46,7 +46,9 @@ without real files. (R3.5)
   - `steps: string[]` (length 4)
   - `outcomes: string[]` (length 3)
   - `differently: string` (≤ 160)
-  - `media?: { video?: { src, poster, description }, diagram?: { src, alt, caption? } }`
+  - `media?: { video?: { src, poster, description, width, height }, diagram?: { src, alt,
+    caption?, width, height } }`; `width`/`height` are the intrinsic size, so the page
+    reserves the space and doesn't shift while media loads
   - Paths are relative to `public/` with a leading `/`, e.g. `/media/pizca/loop.mp4`.
 - Refine: `kind === "work"` with `media.video` → issue on `media.video`, "Work cases can't show
   video (no screenshots of employer work)". (R1.5)
@@ -65,8 +67,8 @@ without real files. (R3.5)
   omitted when empty). (R2.2, R2.3, R2.5)
 - `h2` sections: Problem (`p`), What I did (`ol`, 4 items), Outcome (`ul`, 3 items), What I'd
   do differently (`p`), Media (only when there is media), Next project.
-- Video: `<video muted loop playsinline controls preload="metadata" poster>`, with no
-  `autoplay` attribute. The inline script plays every `video[data-loop]` when
+- Video: `<video muted loop playsinline controls preload="metadata" poster width height>`, no
+  `autoplay` attribute. The `is:inline` script (so it ships only where rendered) plays every `video[data-loop]` when
   `matchMedia("(prefers-reduced-motion: no-preference)")` matches. Native `controls` give a
   keyboard-operable pause and play. The `description` is the visible `figcaption`, linked to the
   video with `aria-describedby`. Without JS the poster and controls still work. (R3.1–R3.4)
@@ -101,7 +103,9 @@ without real files. (R3.5)
   page.
 
 ## New dependencies
-None.
+- `@types/jsdom` (dev, types only): the component tests render `.astro` files with the
+  Astro container API, which needs Vitest's `node` environment, so they parse the HTML with
+  `jsdom` directly. `jsdom` is already a dev dependency.
 
 ## Alternatives rejected
 - Template in the MDX body with headings: no build-time check of 4 steps / 3 outcomes, and
