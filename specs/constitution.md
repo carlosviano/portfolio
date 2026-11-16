@@ -57,6 +57,8 @@ roles. It shows what a CV can't: in-depth case studies, visuals, and the site's 
   no internal business KPIs or figures; qualitative public outcomes I can defend (e.g. store-review
   impact) are allowed. Personal projects: real, verifiable numbers (evals, tests).
 - No taglines or buzzwords; one role label used everywhere; the same figure is identical wherever it appears.
+- Media: one video loop and one diagram per case at most; no video on work cases. Video MP4
+  (H.264), ≤ 2 MB, ≤ 20 s, ≤ 1280 px wide; poster WebP or JPEG, ≤ 200 KB (decided in 003).
 - Positioning stays "React & React Native engineer"; Pizca's card leads on AI with human approval.
   A dedicated AI project is planned as feature 007, after launch.
 
@@ -75,4 +77,3 @@ One branch and PR per feature (`feat/NNN-name`); specs commit first, then implem
 ## Open questions
 - Domain name (decided before feature 006 launch).
 - Personal accent colour (decide in 001 or keep a placeholder token).
-- Video format/size budget for the HyperFrames loops (decide in 003 case-pages).

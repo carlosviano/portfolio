@@ -1,0 +1,47 @@
+---
+import type { Project } from "../content/project-schema";
+
+interface Props {
+  video: NonNullable<NonNullable<Project["media"]>["video"]>;
+  /** Unique per page, for the caption id. */
+  id: string;
+}
+
+const { video, id } = Astro.props;
+const captionId = `${id}-caption`;
+---
+
+<!--
+  No `autoplay` attribute: CSS can't stop it, so the script below starts the
+  loop only when the visitor hasn't asked for reduced motion (R3.2). Native
+  controls give a keyboard pause (R3.3); without JS the poster still shows.
+-->
+<figure class="flex flex-col gap-3">
+  <video
+    data-loop
+    muted
+    loop
+    playsinline
+    controls
+    preload="metadata"
+    poster={video.poster}
+    width={video.width}
+    height={video.height}
+    aria-describedby={captionId}
+    class="h-auto w-full rounded-card border border-line"
+  >
+    <source src={video.src} type="video/mp4" />
+  </video>
+  <figcaption id={captionId} class="text-sm text-muted">
+    {video.description}
+  </figcaption>
+</figure>
+
+<!-- Inline so it ships only on pages that render a video (R2.7). -->
+<script is:inline>
+  if (matchMedia("(prefers-reduced-motion: no-preference)").matches) {
+    for (const video of document.querySelectorAll("video[data-loop]")) {
+      video.play().catch(() => {});
+    }
+  }
+</script>

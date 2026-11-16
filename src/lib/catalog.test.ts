@@ -1,49 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import type { ProjectKind } from "../content/project-schema";
-import {
-  formatRole,
-  toWorkPage,
-  type EmployerEntry,
-  type ProjectEntry,
-} from "./catalog";
-
-function project(
-  id: string,
-  order: number,
-  {
-    kind = "work",
-    employer = kind === "work" ? "bank" : undefined,
-    featured = false,
-  }: { kind?: ProjectKind; employer?: string; featured?: boolean } = {},
-): ProjectEntry {
-  return {
-    id,
-    data: {
-      title: id,
-      kind,
-      summary: "Placeholder summary.",
-      role: "TBD",
-      stack: ["React"],
-      metrics: [],
-      featured,
-      order,
-      employer,
-    },
-  };
-}
-
-function employer(id: string, starts: string[]): EmployerEntry {
-  return {
-    id,
-    data: {
-      name: id,
-      context: "Placeholder context.",
-      roles: starts.map((start) => ({ title: `Role ${start}`, start })),
-      highlights: [`Highlight at ${id}`],
-    },
-  };
-}
+import { formatRole, toWorkPage } from "./catalog";
+import { employer, project } from "./test-fixtures";
 
 const employers = [
   employer("studio", ["2023-03"]),

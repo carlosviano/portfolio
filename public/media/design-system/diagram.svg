@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" width="640" height="320" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16">
+  <!-- Placeholder diagram (003); the real one comes with the case copy in 005. -->
+  <rect width="640" height="320" fill="#ffffff"/>
+  <g fill="#f7f6f3" stroke="#141414" stroke-width="1.5">
+    <rect x="220" y="24" width="200" height="56" rx="4"/>
+    <rect x="220" y="132" width="200" height="56" rx="4"/>
+    <rect x="60" y="240" width="200" height="56" rx="4"/>
+    <rect x="380" y="240" width="200" height="56" rx="4"/>
+  </g>
+  <g stroke="#5a5a57" stroke-width="1.5" fill="none">
+    <path d="M320 80v52"/>
+    <path d="M320 188v26H160v26"/>
+    <path d="M320 214h160v26"/>
+  </g>
+  <g fill="#141414" text-anchor="middle" dominant-baseline="middle">
+    <text x="320" y="52">Tokens</text>
+    <text x="320" y="160">Components</text>
+    <text x="160" y="268">Brand A app</text>
+    <text x="480" y="268">Brand B app</text>
+  </g>
+</svg>
